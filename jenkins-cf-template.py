@@ -45,7 +45,7 @@ ApplicationName
 
 t = Template()
 
-t.add_description("Effective DevOps in AWS: HelloWorld web application")
+t.set_description("Effective DevOps in AWS: HelloWorld web application")
 
 t.add_parameter(Parameter(
     "KeyPair",
@@ -74,13 +74,15 @@ t.add_resource(ec2.SecurityGroup(
 ))
 
 ud = Base64(Join('\n', [ "#!/bin/bash",
-"yum install --enablerepo=epel -y git", 
-"yum install --enablerepo=epel -y ansible",
+"yum install -y git", 
+"yum install -y ansible",
+"yum install -y cronie",
 AnsiblePullCmd,
 "echo '*/10 * * * * {}' > /etc/cron.d/ansible-pull".format(AnsiblePullCmd)
 ]))
 
-t.add_resource(Role(
+t.add_resource(
+  Role(
     "Role",
     AssumeRolePolicyDocument=Policy(
         Statement=[
@@ -101,7 +103,7 @@ t.add_resource(InstanceProfile(
 
 t.add_resource(ec2.Instance(
     "instance",
-    ImageId="ami-cfe4b2b0",
+    ImageId="ami-0df435f331839b2d6",
     InstanceType="t2.micro",
     SecurityGroups=[Ref("SecurityGroup")],
     KeyName=Ref("KeyPair"),
@@ -124,7 +126,6 @@ t.add_output(Output(
     ]),
 ))
 
-print t.to_json()
-
+print(t.to_json())
 
 
