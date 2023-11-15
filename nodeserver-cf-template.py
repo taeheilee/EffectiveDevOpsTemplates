@@ -30,22 +30,23 @@ from awacs.aws import (
 
 from awacs.sts import AssumeRole
 
-ApplicationName = "nodeserver"
-ApplicationPort = "3000"
-GithubAccount = "taeheilee"
+ApplicationName = "nodeserver" 
+ApplicationPort = "3000" 
+
+GithubAccount = "EffectiveDevOpsWithAWS"
 GithubAnsibleURL = "https://github.com/{}/ansible".format(GithubAccount)
+
+AnsiblePullCmd = \
+    "/usr/local/bin/ansible-pull -U {} {}.yml -i localhost".format(
+        GithubAnsibleURL,
+        ApplicationName
+    )
 
 PublicCidrIp = str(ip_network(get_ip()))
 
-AnsiblePullCmd = \
-"/usr/bin/ansible-pull -U {} {}.yml -i localhost".format( GithubAnsibleURL,
-ApplicationName
-)
-
-
 t = Template()
 
-t.set_description("Effective DevOps in AWS: HelloWorld web application")
+t.add_description("Effective DevOps in AWS: HelloWorld web application")
 
 t.add_parameter(Parameter(
     "KeyPair",
@@ -73,16 +74,15 @@ t.add_resource(ec2.SecurityGroup(
     ],
 ))
 
-ud = Base64(Join('\n', [ "#!/bin/bash",
-"yum install -y git", 
-"yum install -y ansible",
-"yum install -y cronie",
-AnsiblePullCmd,
-"echo '*/10 * * * * {}' > /etc/cron.d/ansible-pull".format(AnsiblePullCmd)
+ud = Base64(Join('\n', [
+    "#!/bin/bash",
+    "yum install --enablerepo=epel -y git",
+    "pip install ansible",
+    AnsiblePullCmd,
+    "echo '*/10 * * * * {}' > /etc/cron.d/ansible-pull".format(AnsiblePullCmd)
 ]))
 
-t.add_resource(
-  Role(
+t.add_resource(Role(
     "Role",
     AssumeRolePolicyDocument=Policy(
         Statement=[
@@ -103,7 +103,7 @@ t.add_resource(InstanceProfile(
 
 t.add_resource(ec2.Instance(
     "instance",
-    ImageId="ami-0df435f331839b2d6",
+    ImageId="ami-a4c7edb2",
     InstanceType="t2.micro",
     SecurityGroups=[Ref("SecurityGroup")],
     KeyName=Ref("KeyPair"),
@@ -126,6 +126,4 @@ t.add_output(Output(
     ]),
 ))
 
-print(t.to_json())
-
-
+print t.to_json()
