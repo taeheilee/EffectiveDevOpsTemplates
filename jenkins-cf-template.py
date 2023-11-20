@@ -86,10 +86,23 @@ t.add_resource(
     "Role",
     AssumeRolePolicyDocument=Policy(
         Statement=[
-            Statement(
+           Statement(
                 Effect=Allow,
                 Action=[AssumeRole],
                 Principal=Principal("Service", ["ec2.amazonaws.com"])
+            )
+        ]
+    )
+))
+t.add_resource(IAMPolicy(
+    "Policy",
+    PolicyName="AllowS3",
+    PolicyDocument=Policy(
+        Statement=[
+            Statement(
+                Effect=Allow,
+                Action=[Action("s3", "*")],
+                Resource=["*"]
             )
         ]
     )
