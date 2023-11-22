@@ -16,8 +16,9 @@ from troposphere import (
 
 from troposphere.iam import (
     InstanceProfile,
-    PolicyType as IAMPolicy,
+    PolicyType as IAMPolicy, 
     Role,
+    ManagedPolicy,
 )
 
 from awacs.aws import (
@@ -82,22 +83,25 @@ AnsiblePullCmd,
 ]))
 
 t.add_resource(
-  Role(
-    "Role",
-    AssumeRolePolicyDocument=Policy(
-        Statement=[
-           Statement(
-                Effect=Allow,
-                Action=[AssumeRole],
-                Principal=Principal("Service", ["ec2.amazonaws.com"])
-            )
-        ]
+    Role(
+        "Role",
+        AssumeRolePolicyDocument=Policy(
+            Statement=[
+                Statement(
+                    Effect=Allow,
+                    Action=[AssumeRole],
+                    Principal=Principal("Service", ["ec2.amazonaws.com"])
+                )
+            ]
+        )
     )
-))
-t.add_resource(IAMPolicy(
+)
+
+t.add_resource(ManagedPolicy(
     "Policy",
-    PolicyName="AllowS3",
+    ManagedPolicyName="AllowS3",
     PolicyDocument=Policy(
+        Version="2012-10-17",
         Statement=[
             Statement(
                 Effect=Allow,
@@ -105,8 +109,10 @@ t.add_resource(IAMPolicy(
                 Resource=["*"]
             )
         ]
-    )
+    ),
+    Roles=[Ref("Role")]
 ))
+
 
 t.add_resource(InstanceProfile(
     "InstanceProfile",
