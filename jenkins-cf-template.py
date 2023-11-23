@@ -99,13 +99,16 @@ t.add_resource(
 
 t.add_resource(ManagedPolicy(
     "Policy",
-    ManagedPolicyName="AllowS3",
+    ManagedPolicyName="Allow_S3_codepipeline",
     PolicyDocument=Policy(
         Version="2012-10-17",
         Statement=[
             Statement(
                 Effect=Allow,
-                Action=[Action("s3", "*")],
+                Action=[
+                    Action("s3", "*"),
+                    Action("codepipeline", "*"),
+                    ],
                 Resource=["*"]
             )
         ]
