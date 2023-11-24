@@ -18,6 +18,7 @@ from troposphere.iam import (
     InstanceProfile,
     PolicyType as IAMPolicy,
     Role,
+    ManagedPolicy,
 )
 
 from awacs.aws import (
@@ -93,6 +94,22 @@ t.add_resource(
             )
         ]
     )
+))
+
+t.add_resource(ManagedPolicy(
+    "Policy",
+    ManagedPolicyName="AllowS3",
+    PolicyDocument=Policy(
+        Version="2012-10-17",
+        Statement=[
+            Statement(
+                Effect=Allow,
+                Action=[Action("s3", "*")],
+                Resource=["*"]
+            )
+        ]
+    ),
+    Roles=[Ref("Role")]
 ))
 
 t.add_resource(InstanceProfile(
